@@ -164,7 +164,7 @@ shifty.config.apps = {
                 c:raise()
                 awful.mouse.client.move(c)
                 end),
-            awful.button({modkey}, 3, awful.mouse.client.resize),
+            awful.button({modkey}, 3, awful.mouse.client.resize)
             )
     },
 }
