@@ -580,7 +580,6 @@ function match(c, startup)
     if float ~= nil then
         -- {{{
         awful.client.floating.set(c, float)
-        awful.placement.centered(c, c.transient_for)
         awful.placement.no_offscreen(c)
     end
     --}}}
