@@ -6,24 +6,25 @@
 
 -- {{{environment
 local type = type
-local tag = tag
 local ipairs = ipairs
 local table = table
-local client = client
-local image = image
 local string = string
-local screen = screen
-local button = button
-local mouse = mouse
 local beautiful = require("beautiful")
 local awful = require("awful")
 local pairs = pairs
 local io = io
 local tonumber = tonumber
-local wibox = wibox
-local root = root
 local dbg= dbg
-local timer = timer
+local capi = {
+  client = client,
+  tag = tag,
+  image = image,
+  screen = screen,
+  button = button,
+  mouse = mouse,
+  root = root,
+  timer = timer
+}
 
 module("shifty")
 --}}}
@@ -47,7 +48,7 @@ config.prompt_matchers = {"^", ":", ""}
 
 local matchp = ""
 local index_cache = {}
-for i = 1, screen.count() do index_cache[i] = {} end
+for i = 1, capi.screen.count() do index_cache[i] = {} end
 --}}}
 
 --{{{name2tags: matches string 'name' to tag objects
@@ -56,9 +57,9 @@ for i = 1, screen.count() do index_cache[i] = {} end
 -- @return table of tag objects or nil
 function name2tags(name, scr)
     local ret = {}
-    local a, b = scr or 1, scr or screen.count()
+    local a, b = scr or 1, scr or capi.screen.count()
     for s = a, b do
-        for i, t in ipairs(screen[s]:tags()) do
+        for i, t in ipairs(capi.screen[s]:tags()) do
             if name == t.name then
                 table.insert(ret, t)
             end
@@ -78,7 +79,7 @@ end
 -- @param tag : the tag object to find
 -- @return the index [or zero] or end of the list
 function tag2index(scr, tag)
-    for i, t in ipairs(screen[scr]:tags()) do
+    for i, t in ipairs(capi.screen[scr]:tags()) do
         if t == tag then return i end
     end
 end
@@ -90,7 +91,7 @@ end
 --@param no_selectall:
 function rename(tag, prefix, no_selectall)
     local theme = beautiful.get()
-    local t = tag or awful.tag.selected(mouse.screen)
+    local t = tag or awful.tag.selected(capi.mouse.screen)
     local scr = t.screen
     local bg = nil
     local fg = nil
@@ -120,7 +121,7 @@ function rename(tag, prefix, no_selectall)
                 awful.tag.setproperty(t, "initial", true)
                 set(t)
             end
-            tagkeys(screen[scr])
+            tagkeys(capi.screen[scr])
             t:emit_signal("property::name")
         end
         )
@@ -131,12 +132,12 @@ end
 -- maybe this isn't needed here in shifty?
 -- @param idx the tag number to send a client to
 function send(idx)
-    local scr = client.focus.screen or mouse.screen
+    local scr = capi.client.focus.screen or capi.mouse.screen
     local sel = awful.tag.selected(scr)
     local sel_idx = tag2index(scr, sel)
-    local tags = screen[scr]:tags()
+    local tags = capi.screen[scr]:tags()
     local target = awful.util.cycle(#tags, sel_idx + idx)
-    awful.client.movetotag(tags[target], client.focus)
+    awful.client.movetotag(tags[target], capi.client.focus)
     awful.tag.viewonly(tags[target])
 end
 
@@ -150,8 +151,8 @@ function send_prev() send(-1) end
 function pos2idx(pos, scr)
     local v = 1
     if pos and scr then
-        for i = #screen[scr]:tags() , 1, -1 do
-            local t = screen[scr]:tags()[i]
+        for i = #capi.screen[scr]:tags() , 1, -1 do
+            local t = capi.screen[scr]:tags()[i]
             if awful.tag.getproperty(t, "position") and
                 awful.tag.getproperty(t, "position") <= pos then
                 v = i + 1
@@ -181,7 +182,7 @@ end
 --@return the tag
 function tagtoscr(scr, t)
     -- break if called with an invalid screen number
-    if not scr or scr < 1 or scr > screen.count() then return end
+    if not scr or scr < 1 or scr > capi.screen.count() then return end
     -- tag to move
     local otag = t or awful.tag.selected()
 
@@ -219,15 +220,15 @@ function set(t, args)
     local scr = args.screen or
     (not t.screen and preset.screen) or
     t.screen or
-    mouse.screen
+    capi.mouse.screen
 
     local clientstomove = nil
-    if scr > screen.count() then scr = screen.count() end
+    if scr > capi.screen.count() then scr = capi.screen.count() end
     if t.screen and scr ~= t.screen then
         tagtoscr(scr, t)
         t.screen = nil
     end
-    local tags = screen[scr]:tags()
+    local tags = capi.screen[scr]:tags()
 
     -- try to guess position from the name
     local guessed_position = nil
@@ -276,10 +277,10 @@ function set(t, args)
                         config.defaults.max_clients},
         position = select{args.position, preset.position, guessed_position,
                         awful.tag.getproperty(t, "position")},
-        icon = select{args.icon and image(args.icon),
-                        preset.icon and image(preset.icon),
+        icon = select{args.icon and capi.image(args.icon),
+                        preset.icon and capi.image(preset.icon),
                         awful.tag.getproperty(t, "icon"),
-                    config.defaults.icon and image(config.defaults.icon)},
+                    config.defaults.icon and capi.image(config.defaults.icon)},
         icon_only = select{args.icon_only, preset.icon_only,
                         awful.tag.getproperty(t, "icon_only"),
                         config.defaults.icon_only},
@@ -340,7 +341,7 @@ function set(t, args)
     end
 
     -- set tag properties and push the new tag table
-    screen[scr]:tags(tags)
+    capi.screen[scr]:tags(tags)
     for prop, val in pairs(props) do awful.tag.setproperty(t, prop, val) end
 
     -- execute run/spawn
@@ -370,7 +371,7 @@ function add(args)
     local name = args.name or " "
 
     -- initialize a new tag object and its data structure
-    local t = tag{name = name}
+    local t = capi.tag{name = name}
 
     -- tell set() that this is the first time
     awful.tag.setproperty(t, "initial", true)
@@ -380,7 +381,7 @@ function add(args)
 
     -- unless forbidden or if first tag on the screen, show the tag
     if not (awful.tag.getproperty(t, "nopopup") or args.noswitch) or
-        #screen[t.screen]:tags() == 1 then
+        #capi.screen[t.screen]:tags() == 1 then
         awful.tag.viewonly(t)
     end
 
@@ -398,7 +399,7 @@ function add(args)
         else
             f = function() rename(t); tmr:stop() end
         end
-        tmr = timer({timeout = 0.01})
+        tmr = capi.timer({timeout = 0.01})
         tmr:add_signal("timeout", f)
         tmr:start()
     end
@@ -410,8 +411,8 @@ end
 --{{{del : delete a tag
 --@param tag : the tag to be deleted [current tag]
 function del(tag)
-    local scr = (tag and tag.screen) or mouse.screen or 1
-    local tags = screen[scr]:tags()
+    local scr = (tag and tag.screen) or capi.mouse.screen or 1
+    local tags = capi.screen[scr]:tags()
     local sel = awful.tag.selected(scr)
     local t = tag or sel
     local idx = tag2index(scr, t)
@@ -441,7 +442,7 @@ function del(tag)
     end
 
     -- FIXME: what is this for??
-    if client.focus then client.focus:raise() end
+    if capi.client.focus then capi.client.focus:raise() end
 end
 --}}}
 
@@ -470,7 +471,7 @@ function match(c, startup)
     local role = c.role
     local name = c.name
     local keys = config.clientkeys or c:keys() or {}
-    local target_screen = mouse.screen
+    local target_screen = capi.mouse.screen
 
     c.border_color = beautiful.border_normal
     c.border_width = beautiful.border_width
@@ -688,7 +689,7 @@ function match(c, startup)
            (awful.tag.getproperty(target, "nopopup") or nopopup)  then
             awful.client.focus.history.add(c)
         else
-            client.focus = c
+            capi.client.focus = c
         end
         c:raise()
     else
@@ -701,7 +702,7 @@ function match(c, startup)
         c:add_signal("mouse::enter", function(c)
             if awful.client.focus.filter(c) and
                 awful.layout.get(c.screen) ~= awful.layout.suit.magnifier then
-                client.focus = c
+                capi.client.focus = c
             end
         end)
     end
@@ -716,8 +717,8 @@ end
 --{{{sweep : hook function that marks tags as used, visited,
 --deserted also handles deleting used and empty tags
 function sweep()
-    for s = 1, screen.count() do
-        for i, t in ipairs(screen[s]:tags()) do
+    for s = 1, capi.screen.count() do
+        for i, t in ipairs(capi.screen[s]:tags()) do
             local clients = t:clients()
             local sticky = 0
             for i, c in ipairs(clients) do
@@ -733,7 +734,7 @@ function sweep()
                             local f = function()
                                         del(t); tmr:stop()
                                     end
-                            tmr = timer({timeout = delay})
+                            tmr = capi.timer({timeout = delay})
                             tmr:add_signal("timeout", f)
                             tmr:start()
                         else
@@ -764,11 +765,11 @@ function getpos(pos, scr_arg)
     local v = nil
     local existing = {}
     local selected = nil
-    local scr = scr_arg or mouse.screen or 1
+    local scr = scr_arg or capi.mouse.screen or 1
 
     -- search for existing tag assigned to pos
-    for i = 1, screen.count() do
-        for j, t in ipairs(screen[i]:tags()) do
+    for i = 1, capi.screen.count() do
+        for j, t in ipairs(capi.screen[i]:tags()) do
             if awful.tag.getproperty(t, "position") == pos then
                 table.insert(existing, t)
                 if t.selected and i == scr then
@@ -820,7 +821,7 @@ end
 --{{{init : search shifty.config.tags for initial set of
 --tags to open
 function init()
-    local numscr = screen.count()
+    local numscr = capi.screen.count()
 
     for i, j in pairs(config.tags) do
         local scr = j.screen or {1}
@@ -898,10 +899,10 @@ function completion(cmd, cur_pos, ncomp, sources, matchers)
         -- current screen
         existing = function()
             local ret = {}
-            for i = 1, screen.count() do
-                local s = awful.util.cycle(screen.count(),
-                                            mouse.screen + i - 1)
-                local tags = screen[s]:tags()
+            for i = 1, capi.screen.count() do
+                local s = awful.util.cycle(capi.screen.count(),
+                                            capi.mouse.screen + i - 1)
+                local tags = capi.screen[s]:tags()
                 for j, t in pairs(tags) do
                     table.insert(ret, t.name)
                 end
@@ -967,7 +968,7 @@ function tagkeys(s)
     local sel = awful.tag.selected(s.index)
     local keys = awful.tag.getproperty(sel, "keys") or
                     config.globalkeys
-    if keys and sel.selected then root.keys(keys) end
+    if keys and sel.selected then capi.root.keys(keys) end
 end
 --}}}
 
@@ -998,14 +999,14 @@ end
 --}}}
 
 -- {{{signals
-client.add_signal("manage", match)
-client.add_signal("unmanage", sweep)
-client.remove_signal("manage", awful.tag.withcurrent)
+capi.client.add_signal("manage", match)
+capi.client.add_signal("unmanage", sweep)
+capi.client.remove_signal("manage", awful.tag.withcurrent)
 
-for s = 1, screen.count() do
+for s = 1, capi.screen.count() do
     awful.tag.attached_add_signal(s, "property::selected", sweep)
     awful.tag.attached_add_signal(s, "tagged", sweep)
-    screen[s]:add_signal("tag::history::update", tagkeys)
+    capi.screen[s]:add_signal("tag::history::update", tagkeys)
 end
 --}}}
 
