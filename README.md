@@ -1,4 +1,4 @@
-# shifty
+# shifty-unstable (for awesome.git/master)
 [Shifty](https://awesome.naquadah.org/wiki/Shifty) is an Awesome 3 extension
 that implements dynamic tagging.
 
@@ -22,6 +22,10 @@ Here are a few ways of how shifty makes awesome awesomer:
 1. Clone repository:
 
     `git clone https://bioe007@github.com/bioe007/awesome-shifty.git shifty`
+
+3. For awesome.git/master checkout the unstable branch:
+
+    `cd shifty && git checkout -b unstable origin/unstable && cd -`
 
 2. Move the example `rc.lua` file into your configuration directory.
 
@@ -66,7 +70,9 @@ the current versions of awesome and shifty, as well as distribution.
 
 ## Credits
 * [Perry Hargrave](mailto:resixian@gmail.com)
-    - Current maintainer and point of contact.
+    - Current maintainer
+* [Ignas Anikevicius](anikevicius@gmail.com)
+    - unstable branch
 * [koniu](mailto:gkusnierz@gmail.com)
     - Original author
 
