@@ -977,6 +977,17 @@ function getlayout(name)
 end
 
 -- signals
+-- Add all the custom signals before using them
+capi.tag.add_signal("property::deserted")
+capi.tag.add_signal("property::exclusive")
+capi.tag.add_signal("property::initial")
+capi.tag.add_signal("property::matched")
+capi.tag.add_signal("property::persist")
+capi.tag.add_signal("property::position")
+capi.tag.add_signal("property::selected")
+capi.tag.add_signal("property::visited")
+capi.tag.add_signal("property::used")
+
 capi.client.connect_signal("manage", match)
 capi.client.connect_signal("unmanage", sweep)
 capi.client.disconnect_signal("manage", awful.tag.withcurrent)
