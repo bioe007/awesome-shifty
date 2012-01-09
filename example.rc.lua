@@ -387,8 +387,7 @@ globalkeys = awful.util.table.join(
 
 -- Client awful tagging: this is useful to tag some clients and then do stuff
 -- like move to tag on them
-clientkeys =
-{
+clientkeys = awful.util.table.join(
     awful.key({modkey,}, "f", function(c) c.fullscreen = not c.fullscreen  end),
     awful.key({modkey, "Shift"}, "c", function(c) c:kill() end),
     awful.key({modkey, "Control"}, "space", awful.client.floating.toggle),
@@ -401,8 +400,9 @@ clientkeys =
         function(c)
             c.maximized_horizontal = not c.maximized_horizontal
             c.maximized_vertical   = not c.maximized_vertical
-        end),
-}
+        end)
+)
+
 -- SHIFTY: assign client keys to shifty for use in
 -- match() function(manage hook)
 shifty.config.clientkeys = clientkeys
