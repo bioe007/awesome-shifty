@@ -69,7 +69,7 @@ shifty.config.tags = {
         layout      = awful.layout.suit.tile.bottom,
         mwfact      = 0.65,
         exclusive   = true,
-        max_clients = true,
+        max_clients = 1,
         position    = 4,
         spawn       = browser,
     },
