@@ -317,9 +317,15 @@ globalkeys = awful.util.table.join(
     awful.key({modkey, "Shift"}, "d", shifty.del), -- delete a tag
     awful.key({modkey, "Shift"}, "n", shifty.send_prev), -- client to prev tag
     awful.key({modkey}, "n", shifty.send_next), -- client to next tag
-    awful.key({modkey, "Control"}, "n", function()
-        shifty.tagtoscr(awful.util.cycle(screen.count(), mouse.screen + 1))
-    end), -- move client to next tag
+    awful.key({modkey, "Control"},
+              "n",
+              function()
+                  local t = awful.tag.selected()
+                  local s = awful.util.cycle(screen.count(), t.screen + 1)
+                  awful.tag.history.restore()
+                  t = shifty.tagtoscr(s, t)
+                  awful.tag.viewonly(t)
+              end),
     awful.key({modkey}, "a", shifty.add), -- creat a new tag
     awful.key({modkey,}, "r", shifty.rename), -- rename a tag
     awful.key({modkey, "Shift"}, "a", -- nopopup new tag
