@@ -187,6 +187,7 @@ function tagtoscr(scr, t)
     -- tag to move
     local otag = t or awful.tag.selected()
 
+    otag.screen = scr
     -- set screen and then reset tag to order properly
     if #otag:clients() > 0 then
         for _ , c in ipairs(otag:clients()) do
@@ -473,7 +474,6 @@ function match(c, startup)
 
     -- try matching client to config.apps
     for i, a in ipairs(config.apps) do
-        -- 
         if a.match then
             for k, w in ipairs(a.match) do
                 if
@@ -573,7 +573,6 @@ function match(c, startup)
 
     -- set properties of floating clients
     if float ~= nil then
-        -- 
         awful.client.floating.set(c, float)
         awful.placement.no_offscreen(c)
     end
