@@ -296,8 +296,8 @@ end
 -- SHIFTY: initialize shifty
 -- the assignment of shifty.taglist must always be after its actually
 -- initialized with awful.widget.taglist.new()
-shifty.taglist = mytaglist
-shifty.init()
+shifty.config.taglist = mytaglist
+shifty.tag.init()
 
 -- Mouse bindings
 root.buttons(awful.util.table.join(
@@ -314,23 +314,23 @@ globalkeys = awful.util.table.join(
     awful.key({modkey,}, "Escape", awful.tag.history.restore),
 
     -- Shifty: keybindings specific to shifty
-    awful.key({modkey, "Shift"}, "d", shifty.del), -- delete a tag
-    awful.key({modkey, "Shift"}, "n", shifty.send_prev), -- client to prev tag
-    awful.key({modkey}, "n", shifty.send_next), -- client to next tag
+    awful.key({modkey, "Shift"}, "d", shifty.tag.del), -- delete a tag
+    awful.key({modkey, "Shift"}, "n", shifty.client.move.left), -- client to prev tag
+    awful.key({modkey}, "n", shifty.client.move.right), -- client to next tag
     awful.key({modkey, "Control"},
               "n",
               function()
                   local t = awful.tag.selected()
                   local s = awful.util.cycle(screen.count(), t.screen + 1)
                   awful.tag.history.restore()
-                  t = shifty.tagtoscr(s, t)
+                  t = shifty.tag.move.screen(s, t)
                   awful.tag.viewonly(t)
               end),
-    awful.key({modkey}, "a", shifty.add), -- creat a new tag
-    awful.key({modkey,}, "r", shifty.rename), -- rename a tag
+    awful.key({modkey}, "a", shifty.tag.add), -- creat a new tag
+    awful.key({modkey,}, "r", shifty.tag.rename), -- rename a tag
     awful.key({modkey, "Shift"}, "a", -- nopopup new tag
     function()
-        shifty.add({nopopup = true})
+        shifty.tag.add({nopopup = true})
     end),
 
     awful.key({modkey,}, "j",
@@ -419,21 +419,21 @@ shifty.config.modkey = modkey
 for i = 1, (shifty.config.maxtags or 9) do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({modkey}, i, function()
-            local t =  awful.tag.viewonly(shifty.getpos(i))
+            local t =  awful.tag.viewonly(shifty.tag.get.by_position(i))
             end),
         awful.key({modkey, "Control"}, i, function()
-            local t = shifty.getpos(i)
+            local t = shifty.tag.get.by_position(i)
             t.selected = not t.selected
             end),
         awful.key({modkey, "Control", "Shift"}, i, function()
             if client.focus then
-                awful.client.toggletag(shifty.getpos(i))
+                awful.client.toggletag(shifty.tag.get.by_position(i))
             end
             end),
         -- move clients to other tags
         awful.key({modkey, "Shift"}, i, function()
             if client.focus then
-                t = shifty.getpos(i)
+                t = shifty.tag.get.by_position(i)
                 awful.client.movetotag(t)
                 awful.tag.viewonly(t)
             end
