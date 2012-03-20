@@ -475,80 +475,133 @@ function match(c, startup)
     -- try matching client to config.apps
     for i, a in ipairs(config.apps) do
         if a.match then
-            for k, w in ipairs(a.match) do
-                if
-                    (cls and cls:find(w)) or
-                    (inst and inst:find(w)) or
-                    (name and name:find(w)) or
-                    (role and role:find(w)) or
-                    (typ and typ:find(w)) then
-                    if a.screen then target_screen = a.screen end
-                    if a.tag then
-                        if type(a.tag) == "string" then
-                            target_tag_names = {a.tag}
-                        else
-                            target_tag_names = a.tag
-                        end
+            local matched = false
+            -- match only class
+            if not matched and cls and a.match.class then
+                for k, w in ipairs(a.match.class) do
+                    matched = cls:find(w)
+                    if matched then
+                        break
                     end
-                    if a.startup and startup then
-                        a = awful.util.table.join(a, a.startup)
+                end
+            end
+            -- match only instance
+            if not matched and inst and a.match.instance then
+                for k, w in ipairs(a.match.instance) do
+                    matched = inst:find(w)
+                    if matched then
+                        break
                     end
-                    if a.geometry ~=nil then
-                        geom = {x = a.geometry[1],
-                        y = a.geometry[2],
-                        width = a.geometry[3],
-                        height = a.geometry[4]}
+                end
+            end
+            -- match only name
+            if not matched and name and a.match.name then
+                for k, w in ipairs(a.match.name) do
+                    matched = name:find(w)
+                    if matched then
+                        break
                     end
-                    if a.float ~= nil then float = a.float end
-                    if a.slave ~=nil then slave = a.slave end
-                    if a.border_width ~= nil then
-                        c.border_width = a.border_width
+                end
+            end
+            -- match only role
+            if not matched and role and a.match.role then
+                for k, w in ipairs(a.match.role) do
+                    matched = role:find(w)
+                    if matched then
+                        break
                     end
-                    if a.nopopup ~=nil then nopopup = a.nopopup end
-                    if a.intrusive ~=nil then
-                        intrusive = a.intrusive
+                end
+            end
+            -- match only type
+            if not matched and typ and a.match.type then
+                for k, w in ipairs(a.match.type) do
+                    matched = typ:find(w)
+                    if matched then
+                        break
                     end
-                    if a.fullscreen ~=nil then
-                        c.fullscreen = a.fullscreen
+                end
+            end
+            -- check everything else against all attributes
+            if not matched then
+                for k, w in ipairs(a.match) do
+                    matched = (cls and cls:find(w)) or
+                            (inst and inst:find(w)) or
+                            (name and name:find(w)) or
+                            (role and role:find(w)) or
+                            (typ and typ:find(w))
+                    if matched then
+                        break
                     end
-                    if a.honorsizehints ~=nil then
-                        c.size_hints_honor = a.honorsizehints
+                end
+            end
+            -- set attributes
+            if matched then
+                if a.screen then target_screen = a.screen end
+                if a.tag then
+                    if type(a.tag) == "string" then
+                        target_tag_names = {a.tag}
+                    else
+                        target_tag_names = a.tag
                     end
-                    if a.kill ~=nil then c:kill(); return end
-                    if a.ontop ~= nil then c.ontop = a.ontop end
-                    if a.above ~= nil then c.above = a.above end
-                    if a.below ~= nil then c.below = a.below end
-                    if a.buttons ~= nil then
-                        c:buttons(a.buttons)
-                    end
-                    if a.nofocus ~= nil then nofocus = a.nofocus end
-                    if a.keys ~= nil then
-                        keys = awful.util.table.join(keys, a.keys)
-                    end
-                    if a.hidden ~= nil then c.hidden = a.hidden end
-                    if a.minimized ~= nil then
-                        c.minimized = a.minimized
-                    end
-                    if a.dockable ~= nil then
-                        awful.client.dockable.set(c, a.dockable)
-                    end
-                    if a.urgent ~= nil then
-                        c.urgent = a.urgent
-                    end
-                    if a.opacity ~= nil then
-                        c.opacity = a.opacity
-                    end
-                    if a.run ~= nil then run = a.run end
-                    if a.sticky ~= nil then c.sticky = a.sticky end
-                    if a.wfact ~= nil then wfact = a.wfact end
-                    if a.struts then struts = a.struts end
-                    if a.skip_taskbar ~= nil then
-                        c.skip_taskbar = a.skip_taskbar
-                    end
-                    if a.props then
-                        for kk, vv in pairs(a.props) do
-                            awful.client.property.set(c, kk, vv)
-                        end
+                end
+                if a.startup and startup then
+                    a = awful.util.table.join(a, a.startup)
+                end
+                if a.geometry ~=nil then
+                    geom = {x = a.geometry[1],
+                    y = a.geometry[2],
+                    width = a.geometry[3],
+                    height = a.geometry[4]}
+                end
+                if a.float ~= nil then float = a.float end
+                if a.slave ~=nil then slave = a.slave end
+                if a.border_width ~= nil then
+                    c.border_width = a.border_width
+                end
+                if a.nopopup ~=nil then nopopup = a.nopopup end
+                if a.intrusive ~=nil then
+                    intrusive = a.intrusive
+                end
+                if a.fullscreen ~=nil then
+                    c.fullscreen = a.fullscreen
+                end
+                if a.honorsizehints ~=nil then
+                    c.size_hints_honor = a.honorsizehints
+                end
+                if a.kill ~=nil then c:kill(); return end
+                if a.ontop ~= nil then c.ontop = a.ontop end
+                if a.above ~= nil then c.above = a.above end
+                if a.below ~= nil then c.below = a.below end
+                if a.buttons ~= nil then
+                    c:buttons(a.buttons)
+                end
+                if a.nofocus ~= nil then nofocus = a.nofocus end
+                if a.keys ~= nil then
+                    keys = awful.util.table.join(keys, a.keys)
+                end
+                if a.hidden ~= nil then c.hidden = a.hidden end
+                if a.minimized ~= nil then
+                    c.minimized = a.minimized
+                end
+                if a.dockable ~= nil then
+                    awful.client.dockable.set(c, a.dockable)
+                end
+                if a.urgent ~= nil then
+                    c.urgent = a.urgent
+                end
+                if a.opacity ~= nil then
+                    c.opacity = a.opacity
+                end
+                if a.run ~= nil then run = a.run end
+                if a.sticky ~= nil then c.sticky = a.sticky end
+                if a.wfact ~= nil then wfact = a.wfact end
+                if a.struts then struts = a.struts end
+                if a.skip_taskbar ~= nil then
+                    c.skip_taskbar = a.skip_taskbar
+                end
+                if a.props then
+                    for kk, vv in pairs(a.props) do
+                        awful.client.property.set(c, kk, vv)
                     end
                 end
             end
