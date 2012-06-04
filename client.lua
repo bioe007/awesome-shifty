@@ -232,9 +232,9 @@ function match(c, startup)
             end
             if #res == 0 then
                 table.insert(target_tags,
-                add({name = tn,
-                noswitch = true,
-                matched = true}))
+                tag.add({name = tn,
+                         noswitch = true,
+                         matched = true}))
             else
                 target_tags = awful.util.table.join(target_tags, res)
             end
