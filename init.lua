@@ -393,6 +393,7 @@ function add(args)
         -- from being rendered until input
         awful.tag.setproperty(t, "initial", true)
         local f
+        local tmr
         if args.position then
             f = function() rename(t, args.rename, true); tmr:stop() end
         else
@@ -770,6 +771,7 @@ function sweep()
                         not awful.tag.getproperty(t, "leave_kills") then
                         local delay = awful.tag.getproperty(t, "sweep_delay")
                         if delay then
+                            local tmr
                             local f = function()
                                         del(t); tmr:stop()
                                     end
