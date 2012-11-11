@@ -823,17 +823,25 @@ function getpos(pos, scr_arg)
         -- if making another of an existing tag, return the end of
         -- the list the optional 2nd argument decides if we return
         -- only
-        if scr_arg ~= nil then
+        if scr_arg ~= nil or not selected then
             for _, tag in pairs(existing) do
-                if tag.screen == scr_arg then return tag end
+                if tag.screen == scr then return tag end
             end
             -- no tag with a position and scr_arg match found, clear
             -- v and allow the subseqeunt conditions to be evaluated
             v = nil
         else
-            v = (selected and
-                    existing[awful.util.cycle(#existing, selected + 1)]) or
-                    existing[1]
+            -- look for the next unselected tag in the list
+            i = selected
+            repeat
+                i = awful.util.cycle(#existing, i + 1)
+                tag = existing[i]
+
+                if not tag.selected then return tag end
+            until i == selected
+
+            -- no unselected tab found, select first tag
+            v = existing[selected]
         end
 
     end
