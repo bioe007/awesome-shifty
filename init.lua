@@ -874,8 +874,11 @@ end
 function init()
     local numscr = capi.screen.count()
 
+    local screens = {}
+    for s = 1, capi.screen.count() do table.insert(screens, s) end
+
     for i, j in pairs(config.tags) do
-        local scr = j.screen or {1}
+        local scr = j.screen or screens
         if type(scr) ~= 'table' then
             scr = {scr}
         end
