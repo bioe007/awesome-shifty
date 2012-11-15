@@ -820,49 +820,53 @@ function getpos(pos, scr_arg)
     end
 
     if #existing > 0 then
-        -- if making another of an existing tag, return the end of
-        -- the list the optional 2nd argument decides if we return
-        -- only
-        if scr_arg ~= nil or not selected then
+        -- if there is no selected tag on current screen, look for the first one
+        if not selected then
             for _, tag in pairs(existing) do
                 if tag.screen == scr then return tag end
             end
-            -- no tag with a position and scr_arg match found, clear
-            -- v and allow the subseqeunt conditions to be evaluated
-            v = nil
-        else
-            -- look for the next unselected tag in the list
-            i = selected
-            repeat
-                i = awful.util.cycle(#existing, i + 1)
-                tag = existing[i]
 
-                if not tag.selected then return tag end
-            until i == selected
-
-            -- no unselected tab found, select first tag
-            v = existing[selected]
+            -- no tag found, loop through the other tags
+            selected = #existing
         end
 
+        -- look for the next unselected tag
+        i = selected
+        repeat
+            i = awful.util.cycle(#existing, i + 1)
+            tag = existing[i]
+
+            if (scr_arg == nil or tag.screen == scr_arg) and not tag.selected then return tag end
+        until i == selected
+
+        -- if the screen is not specified or
+        -- if a selected tag exists on the specified screen
+        -- return the selected tag
+        if scr_arg == nil or existing[selected].screen == scr then return existing[selected] end
+
+        -- if scr_arg ~= nil and no tag exists on this screen, continue
     end
-    if not v then
-        -- search for preconf with 'pos' and create it
-        for i, j in pairs(config.tags) do
-            if j.position == pos then
-                v = add({name = i,
-                        position = pos,
-                        noswitch = not switch})
-            end
+
+    local screens = {}
+    for s = 1, capi.screen.count() do table.insert(screens, s) end
+
+    -- search for preconf with 'pos' on current screen and create it
+    for i, j in pairs(config.tags) do
+        local tag_scr = j.screen or screens
+        if type(tag_scr) ~= 'table' then tag_scr = {tag_scr} end
+
+        if j.position == pos and awful.util.table.hasitem(tag_scr, scr) then
+            return add({name = i,
+                    position = pos,
+                    noswitch = not switch})
         end
     end
-    if not v then
-        -- not existing, not preconfigured
-        v = add({position = pos,
-                rename = pos .. ':',
-                no_selectall = true,
-                noswitch = not switch})
-    end
-    return v
+
+    -- not existing, not preconfigured
+    return add({position = pos,
+            rename = pos .. ':',
+            no_selectall = true,
+            noswitch = not switch})
 end
 
 --init : search shifty.config.tags for initial set of
