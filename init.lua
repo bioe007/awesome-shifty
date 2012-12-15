@@ -341,8 +341,11 @@ function set(t, args)
         index_cache[scr][t.name] = idx
     end
 
+    local c = capi.client.focus
     -- set tag properties and push the new tag table
     capi.screen[scr]:tags(tags)
+    -- restore previously focused client
+    if c ~= nil then capi.client.focus = c end
     for prop, val in pairs(props) do awful.tag.setproperty(t, prop, val) end
 
     -- execute run/spawn
