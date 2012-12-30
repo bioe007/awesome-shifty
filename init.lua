@@ -400,7 +400,7 @@ function add(args)
             f = function() rename(t); tmr:stop() end
         end
         tmr = capi.timer({timeout = 0.01})
-        tmr:add_signal("timeout", f)
+        tmr:connect_signal("timeout", f)
         tmr:start()
     end
 
@@ -615,7 +615,7 @@ function match(c, startup)
     -- Add titlebars to all clients when the float, remove when they are
     -- tiled.
     if config.float_bars then
-        c:add_signal("property::floating", function(c)
+        c:connect_signal("property::floating", function(c)
             if awful.client.floating.get(c) then
                 awful.titlebar.add(c, {modkey=modkey})
             else
@@ -741,7 +741,7 @@ function match(c, startup)
 
     if config.sloppy then
         -- Enable sloppy focus
-        c:add_signal("mouse::enter", function(c)
+        c:connect_signal("mouse::enter", function(c)
             if awful.client.focus.filter(c) and
                 awful.layout.get(c.screen) ~= awful.layout.suit.magnifier then
                 capi.client.focus = c
@@ -776,7 +776,7 @@ function sweep()
                                         del(t); tmr:stop()
                                     end
                             tmr = capi.timer({timeout = delay})
-                            tmr:add_signal("timeout", f)
+                            tmr:connect_signal("timeout", f)
                             tmr:start()
                         else
                             del(t)
@@ -1046,13 +1046,13 @@ function getlayout(name)
 end
 
 -- signals
-capi.client.add_signal("manage", match)
-capi.client.add_signal("unmanage", sweep)
-capi.client.remove_signal("manage", awful.tag.withcurrent)
+capi.client.connect_signal("manage", match)
+capi.client.connect_signal("unmanage", sweep)
+capi.client.disconnect_signal("manage", awful.tag.withcurrent)
 
 for s = 1, capi.screen.count() do
-    awful.tag.attached_add_signal(s, "property::selected", sweep)
-    awful.tag.attached_add_signal(s, "tagged", sweep)
-    capi.screen[s]:add_signal("tag::history::update", tagkeys)
+    awful.tag.attached_connect_signal(s, "property::selected", sweep)
+    awful.tag.attached_connect_signal(s, "tagged", sweep)
+    capi.screen[s]:connect_signal("tag::history::update", tagkeys)
 end
 
