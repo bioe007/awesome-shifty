@@ -1,7 +1,9 @@
---- Shifty: Dynamic tagging library for awesome3-git
+--- Shifty: Dynamic tagging library, version for awesome v3.5
 -- @author koniu &lt;gkusnierz@gmail.com&gt;
 -- @author resixian (aka bioe007) &lt;resixian@gmail.com&gt;
+-- @author cdump &lt;andreevmaxim@gmail.com&gt;
 --
+-- https://github.com/cdump/awesome-shifty
 -- http://awesome.naquadah.org/wiki/index.php?title=Shifty
 
 -- environment
@@ -26,29 +28,29 @@ local capi = {
     timer = timer
 }
 
-module("shifty")
+local shifty = {}
 
 -- variables
-config = {}
-config.tags = {}
-config.apps = {}
-config.defaults = {}
-config.float_bars = false
-config.guess_name = true
-config.guess_position = true
-config.remember_index = true
-config.sloppy = true
-config.default_name = "new"
-config.clientkeys = {}
-config.globalkeys = nil
-config.layouts = {}
-config.prompt_sources = {
+shifty.config = {}
+shifty.config.tags = {}
+shifty.config.apps = {}
+shifty.config.defaults = {}
+shifty.config.float_bars = false
+shifty.config.guess_name = true
+shifty.config.guess_position = true
+shifty.config.remember_index = true
+shifty.config.sloppy = true
+shifty.config.default_name = "new"
+shifty.config.clientkeys = {}
+shifty.config.globalkeys = nil
+shifty.config.layouts = {}
+shifty.config.prompt_sources = {
     "config_tags",
     "config_apps",
     "existing",
     "history"
 }
-config.prompt_matchers = {
+shifty.config.prompt_matchers = {
     "^",
     ":",
     ""
@@ -94,7 +96,7 @@ end
 --@param tag: tag object to be renamed
 --@param prefix: if any prefix is to be added
 --@param no_selectall:
-function rename(tag, prefix, no_selectall)
+function shifty.rename(tag, prefix, no_selectall)
     local theme = beautiful.get()
     local t = tag or awful.tag.selected(capi.mouse.screen)
     local scr = awful.tag.getscreen(t)
@@ -121,7 +123,7 @@ function rename(tag, prefix, no_selectall)
         nil,
         function ()
             if t.name == before then
-                if awful.tag.getproperty(t, "initial") then del(t) end
+                if awful.tag.getproperty(t, "initial") then shifty.del(t) end
             else
                 awful.tag.setproperty(t, "initial", true)
                 set(t)
@@ -145,8 +147,8 @@ function send(idx)
     awful.tag.viewonly(tags[target])
 end
 
-function send_next() send(1) end
-function send_prev() send(-1) end
+function shifty.send_next() send(1) end
+function shifty.send_prev() send(-1) end
 
 --pos2idx: translate shifty position to tag index
 --@param pos: position (an integer)
@@ -182,7 +184,7 @@ end
 --@param scr : the screen to move tag to
 --@param t : the tag to be moved [awful.tag.selected()]
 --@return the tag
-function tagtoscr(scr, t)
+function shifty.tagtoscr(scr, t)
     -- break if called with an invalid screen number
     if not scr or scr < 1 or scr > capi.screen.count() then return end
     -- tag to move
@@ -216,7 +218,7 @@ function set(t, args)
 
     -- attempt to load preset on initial run
     local preset = (awful.tag.getproperty(t, "initial") and
-    config.tags[t.name]) or {}
+    shifty.config.tags[t.name]) or {}
 
     -- pick screen and get its tag table
     local scr = args.screen or
@@ -227,14 +229,14 @@ function set(t, args)
     local clientstomove = nil
     if scr > capi.screen.count() then scr = capi.screen.count() end
     if awful.tag.getscreen(t) and scr ~= awful.tag.getscreen(t) then
-        tagtoscr(scr, t)
+        shifty.tagtoscr(scr, t)
         awful.tag.setscreen(t, nil)
     end
     local tags = awful.tag.gettags(scr)
 
     -- try to guess position from the name
     local guessed_position = nil
-    if not (args.position or preset.position) and config.guess_position then
+    if not (args.position or preset.position) and shifty.config.guess_position then
         local num = t.name:find('^[1-9]')
         if num then guessed_position = tonumber(t.name:sub(1, 1)) end
     end
@@ -251,47 +253,47 @@ function set(t, args)
     local props = {
         layout = select{args.layout, preset_layout,
                         awful.tag.getproperty(t, "layout"),
-                        config.defaults.layout, awful.layout.suit.tile},
+                        shifty.config.defaults.layout, awful.layout.suit.tile},
         mwfact = select{args.mwfact, preset.mwfact,
                         awful.tag.getproperty(t, "mwfact"),
-                        config.defaults.mwfact, 0.55},
+                        shifty.config.defaults.mwfact, 0.55},
         nmaster = select{args.nmaster, preset.nmaster,
                         awful.tag.getproperty(t, "nmaster"),
-                        config.defaults.nmaster, 1},
+                        shifty.config.defaults.nmaster, 1},
         ncol = select{args.ncol, preset.ncol,
                         awful.tag.getproperty(t, "ncol"),
-                        config.defaults.ncol, 1},
+                        shifty.config.defaults.ncol, 1},
         matched = select{args.matched, awful.tag.getproperty(t, "matched")},
         exclusive = select{args.exclusive, preset.exclusive,
                         awful.tag.getproperty(t, "exclusive"),
-                        config.defaults.exclusive},
+                        shifty.config.defaults.exclusive},
         persist = select{args.persist, preset.persist,
                         awful.tag.getproperty(t, "persist"),
-                        config.defaults.persist},
+                        shifty.config.defaults.persist},
         nopopup = select{args.nopopup, preset.nopopup,
                         awful.tag.getproperty(t, "nopopup"),
-                        config.defaults.nopopup},
+                        shifty.config.defaults.nopopup},
         leave_kills = select{args.leave_kills, preset.leave_kills,
                         awful.tag.getproperty(t, "leave_kills"),
-                        config.defaults.leave_kills},
+                        shifty.config.defaults.leave_kills},
         max_clients = select{args.max_clients, preset.max_clients,
                         awful.tag.getproperty(t, "max_clients"),
-                        config.defaults.max_clients},
+                        shifty.config.defaults.max_clients},
         position = select{args.position, preset.position, guessed_position,
                         awful.tag.getproperty(t, "position")},
         icon = select{args.icon and capi.image(args.icon),
                         preset.icon and capi.image(preset.icon),
                         awful.tag.getproperty(t, "icon"),
-                    config.defaults.icon and capi.image(config.defaults.icon)},
+                    shifty.config.defaults.icon and capi.image(shifty.config.defaults.icon)},
         icon_only = select{args.icon_only, preset.icon_only,
                         awful.tag.getproperty(t, "icon_only"),
-                        config.defaults.icon_only},
+                        shifty.config.defaults.icon_only},
         sweep_delay = select{args.sweep_delay, preset.sweep_delay,
                         awful.tag.getproperty(t, "sweep_delay"),
-                        config.defaults.sweep_delay},
+                        shifty.config.defaults.sweep_delay},
         overload_keys = select{args.overload_keys, preset.overload_keys,
                         awful.tag.getproperty(t, "overload_keys"),
-                        config.defaults.overload_keys},
+                        shifty.config.defaults.overload_keys},
     }
 
     -- get layout by name if given as string
@@ -301,7 +303,7 @@ function set(t, args)
 
     -- set keys
     if args.keys or preset.keys then
-        local keys = awful.util.table.join(config.globalkeys,
+        local keys = awful.util.table.join(shifty.config.globalkeys,
         args.keys or preset.keys)
         if props.overload_keys then
             props.keys = keys
@@ -311,10 +313,10 @@ function set(t, args)
     end
 
     -- calculate desired taglist index
-    local index = args.index or preset.index or config.defaults.index
+    local index = args.index or preset.index or shifty.config.defaults.index
     local rel_index = args.rel_index or
     preset.rel_index or
-    config.defaults.rel_index
+    shifty.config.defaults.rel_index
     local sel = awful.tag.selected(scr)
     --TODO: what happens with rel_idx if no tags selected
     local sel_idx = (sel and tag2index(scr, sel)) or 0
@@ -329,7 +331,7 @@ function set(t, args)
     elseif props.position then
         idx = pos2idx(props.position, scr)
         if t_idx and t_idx < idx then idx = idx - 1 end
-    elseif config.remember_index and index_cache[scr][t.name] then
+    elseif shifty.config.remember_index and index_cache[scr][t.name] then
         idx = index_cache[scr][t.name]
     elseif not t_idx then
         idx = #tags + 1
@@ -350,8 +352,8 @@ function set(t, args)
 
     -- execute run/spawn
     if awful.tag.getproperty(t, "initial") then
-        local spawn = args.spawn or preset.spawn or config.defaults.spawn
-        local run = args.run or preset.run or config.defaults.run
+        local spawn = args.spawn or preset.spawn or shifty.config.defaults.spawn
+        local run = args.run or preset.run or shifty.config.defaults.run
         if spawn and args.matched ~= true then
             awful.util.spawn_with_shell(spawn, scr)
         end
@@ -368,7 +370,7 @@ function shift_prev() set(awful.tag.selected(), {rel_index = -1}) end
 
 --add : adds a tag
 --@param args: table of optional arguments
-function add(args)
+function shifty.add(args)
     if not args then args = {} end
     local name = args.name or " "
 
@@ -398,9 +400,9 @@ function add(args)
         local f
         local tmr
         if args.position then
-            f = function() rename(t, args.rename, true); tmr:stop() end
+            f = function() shifty.rename(t, args.rename, true); tmr:stop() end
         else
-            f = function() rename(t); tmr:stop() end
+            f = function() shifty.rename(t); tmr:stop() end
         end
         tmr = capi.timer({timeout = 0.01})
         tmr:connect_signal("timeout", f)
@@ -412,7 +414,7 @@ end
 
 --del : delete a tag
 --@param tag : the tag to be deleted [current tag]
-function del(tag)
+function shifty.del(tag)
     local scr = (tag and awful.tag.getscreen(tag)) or capi.mouse.screen or 1
     local tags = awful.tag.gettags(scr)
     local sel = awful.tag.selected(scr)
@@ -470,14 +472,14 @@ function match(c, startup)
     local inst = c.instance
     local role = c.role
     local name = c.name
-    local keys = config.clientkeys or c:keys() or {}
+    local keys = shifty.config.clientkeys or c:keys() or {}
     local target_screen = capi.mouse.screen
 
     c.border_color = beautiful.border_normal
     c.border_width = beautiful.border_width
 
     -- try matching client to config.apps
-    for i, a in ipairs(config.apps) do
+    for i, a in ipairs(shifty.config.apps) do
         if a.match then
             local matched = false
             -- match only class
@@ -617,7 +619,7 @@ function match(c, startup)
 
     -- Add titlebars to all clients when the float, remove when they are
     -- tiled.
-    if config.float_bars then
+    if shifty.config.float_bars then
         c:connect_signal("property::floating", function(c)
             if awful.client.floating.get(c) then
                 awful.titlebar.add(c, {modkey=modkey})
@@ -656,10 +658,10 @@ function match(c, startup)
         (not target_tags or #target_tags == 0) then
         -- if we still don't know any target names/tags guess
         -- name from class or use default
-        if config.guess_name and cls then
+        if shifty.config.guess_name and cls then
             target_tag_names = {cls:lower()}
         else
-            target_tag_names = {config.default_name}
+            target_tag_names = {shifty.config.default_name}
         end
     end
 
@@ -682,7 +684,7 @@ function match(c, startup)
             end
             if #res == 0 then
                 table.insert(target_tags,
-                add({name = tn,
+                shifty.add({name = tn,
                 noswitch = true,
                 matched = true}))
             else
@@ -742,7 +744,7 @@ function match(c, startup)
         c:lower()
     end
 
-    if config.sloppy then
+    if shifty.config.sloppy then
         -- Enable sloppy focus
         c:connect_signal("mouse::enter", function(c)
             if awful.client.focus.filter(c) and
@@ -776,13 +778,13 @@ function sweep()
                         if delay then
                             local tmr
                             local f = function()
-                                        del(t); tmr:stop()
+                                        shifty.del(t); tmr:stop()
                                     end
                             tmr = capi.timer({timeout = delay})
                             tmr:connect_signal("timeout", f)
                             tmr:start()
                         else
-                            del(t)
+                            shifty.del(t)
                         end
                     else
                         if awful.tag.getproperty(t, "visited") and
@@ -804,7 +806,7 @@ end
 --getpos : returns a tag to match position
 -- @param pos : the index to find
 -- @return v : the tag (found or created) at position == 'pos'
-function getpos(pos, scr_arg)
+function shifty.getpos(pos, scr_arg)
     local v = nil
     local existing = {}
     local selected = nil
@@ -854,40 +856,40 @@ function getpos(pos, scr_arg)
     for s = 1, capi.screen.count() do table.insert(screens, s) end
 
     -- search for preconf with 'pos' on current screen and create it
-    for i, j in pairs(config.tags) do
+    for i, j in pairs(shifty.config.tags) do
         local tag_scr = j.screen or screens
         if type(tag_scr) ~= 'table' then tag_scr = {tag_scr} end
 
         if j.position == pos and awful.util.table.hasitem(tag_scr, scr) then
-            return add({name = i,
+            return shifty.add({name = i,
                     position = pos,
                     noswitch = not switch})
         end
     end
 
     -- not existing, not preconfigured
-    return add({position = pos,
+    return shifty.add({position = pos,
             rename = pos .. ':',
             no_selectall = true,
             noswitch = not switch})
 end
 
---init : search shifty.config.tags for initial set of
+--init : search config.tags for initial set of
 --tags to open
-function init()
+function shifty.init()
     local numscr = capi.screen.count()
 
     local screens = {}
     for s = 1, capi.screen.count() do table.insert(screens, s) end
 
-    for i, j in pairs(config.tags) do
+    for i, j in pairs(shifty.config.tags) do
         local scr = j.screen or screens
         if type(scr) ~= 'table' then
             scr = {scr}
         end
         for _, s in pairs(scr) do
             if j.init and (s <= numscr) then
-                add({name = i,
+                shifty.add({name = i,
                     persist = true,
                     screen = s,
                     layout = j.layout,
@@ -923,14 +925,14 @@ end
 function completion(cmd, cur_pos, ncomp, sources, matchers)
 
     -- get sources and matches tables
-    sources = sources or config.prompt_sources
-    matchers = matchers or config.prompt_matchers
+    sources = sources or shifty.config.prompt_sources
+    matchers = matchers or shifty.config.prompt_matchers
 
     local get_source = {
         -- gather names from config.tags
         config_tags = function()
             local ret = {}
-            for n, p in pairs(config.tags) do
+            for n, p in pairs(shifty.config.tags) do
                 table.insert(ret, n)
             end
             return ret
@@ -938,7 +940,7 @@ function completion(cmd, cur_pos, ncomp, sources, matchers)
         -- gather names from config.apps
         config_apps = function()
             local ret = {}
-            for i, p in pairs(config.apps) do
+            for i, p in pairs(shifty.config.apps) do
                 if p.tag then
                     if type(p.tag) == "string" then
                         table.insert(ret, p.tag)
@@ -1020,7 +1022,7 @@ end
 function tagkeys(s)
     local sel = awful.tag.selected(s.index)
     local keys = awful.tag.getproperty(sel, "keys") or
-                    config.globalkeys
+                    shifty.config.globalkeys
     if keys and sel.selected then capi.root.keys(keys) end
 end
 
@@ -1041,7 +1043,7 @@ end
 
 -- getlayout: returns a layout by name
 function getlayout(name)
-    for _, layout in ipairs(config.layouts) do
+    for _, layout in ipairs(shifty.config.layouts) do
         if awful.layout.getname(layout) == name then
             return layout
         end
@@ -1059,3 +1061,4 @@ for s = 1, capi.screen.count() do
     capi.screen[s]:connect_signal("tag::history::update", tagkeys)
 end
 
+return shifty
