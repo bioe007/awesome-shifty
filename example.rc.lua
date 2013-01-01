@@ -362,7 +362,7 @@ globalkeys = awful.util.table.join(
                   awful.tag.viewonly(t)
               end),
     awful.key({modkey}, "a", shifty.add), -- creat a new tag
-    awful.key({modkey,}, "r", shifty.rename), -- rename a tag
+    awful.key({modkey, "Shift"}, "r", shifty.rename), -- rename a tag
     awful.key({modkey, "Shift"}, "a", -- nopopup new tag
     function()
         shifty.add({nopopup = true})

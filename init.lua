@@ -112,11 +112,14 @@ function shifty.rename(tag, prefix, no_selectall)
         bg = theme.bg_normal or '#222222'
         fg = theme.fg_urgent or '#ffffff'
     end
-
+    
+    local tag_index = tag2index(scr, t)
+    -- Access to textbox widget in taglist
+    local tb_widget = shifty.taglist[scr].widgets[tag_index].widget.widgets[2].widget
     awful.prompt.run({
         fg_cursor = fg, bg_cursor = bg, ul_cursor = "single",
         text = text, selectall = not no_selectall},
-        taglist[scr][tag2index(scr, t) * 2],
+        tb_widget,
         function (name) if name:len() > 0 then t.name = name; end end,
         completion,
         awful.util.getdir("cache") .. "/history_tags",
@@ -377,8 +380,6 @@ function shifty.add(args)
     -- initialize a new tag object and its data structure
     local t = awful.tag.add(name, { initial = true })
 
-    -- tell set() that this is the first time
-    --~ awful.tag.setproperty(t, "initial", true)
 
     -- apply tag settings
     set(t, args)
