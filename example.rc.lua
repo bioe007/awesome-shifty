@@ -449,31 +449,33 @@ clientkeys = awful.util.table.join(
 shifty.config.clientkeys = clientkeys
 shifty.config.modkey = modkey
 
--- Compute the maximum number of digit we need, limited to 9
+-- Bind all key numbers to tags.
+-- Be careful: we use keycodes to make it works on any keyboard layout.
+-- This should map on the top row of your keyboard, usually 1 to 9.
 for i = 1, (shifty.config.maxtags or 9) do
     globalkeys = awful.util.table.join(globalkeys,
-          awful.key({modkey}, i, function()
-            local t =  awful.tag.viewonly(shifty.getpos(i))
-            end),
-        awful.key({modkey, "Control"}, i, function()
-            local t = shifty.getpos(i)
-            t.selected = not t.selected
-            end),
-        awful.key({modkey, "Control", "Shift"}, i, function()
-            if client.focus then
-                awful.client.toggletag(shifty.getpos(i))
-            end
-            end),
-        -- move clients to other tags
-        awful.key({modkey, "Shift"}, i, function()
-            if client.focus then
-                t = shifty.getpos(i)
-                awful.client.movetotag(t)
-                awful.tag.viewonly(t)
-            end
-        end))
-
-
+        awful.key({ modkey }, "#" .. i + 9,
+                  function ()
+                      awful.tag.viewonly(shifty.getpos(i))
+                  end),
+        awful.key({ modkey, "Control" }, "#" .. i + 9,
+                  function ()
+                      awful.tag.viewtoggle(shifty.getpos(i))
+                  end),
+        awful.key({ modkey, "Shift" }, "#" .. i + 9,
+                  function ()
+                      if client.focus then
+                          local t = shifty.getpos(i)
+                          awful.client.movetotag(t)
+                          awful.tag.viewonly(t)
+                       end
+                  end),
+        awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
+                  function ()
+                      if client.focus then
+                          awful.client.toggletag(shifty.getpos(i))
+                      end
+                  end))
 end
 
 -- Set keys
@@ -482,4 +484,5 @@ root.keys(globalkeys)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
 -- }}}
