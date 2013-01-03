@@ -356,7 +356,7 @@ globalkeys = awful.util.table.join(
               "n",
               function()
                   local t = awful.tag.selected()
-                  local s = awful.util.cycle(screen.count(), t.screen + 1)
+                  local s = awful.util.cycle(screen.count(), awful.tag.getscreen(t) + 1)
                   awful.tag.history.restore()
                   t = shifty.tagtoscr(s, t)
                   awful.tag.viewonly(t)
