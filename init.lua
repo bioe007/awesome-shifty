@@ -679,7 +679,9 @@ function match(c, startup)
                     tagged) or
                     (#t:clients() > mc))) or
                     intrusive then
-                    table.insert(res, t)
+                    if awful.tag.getscreen(t) == mouse.screen then
+                        table.insert(res, t)
+                    end
                 end
             end
             if #res == 0 then
