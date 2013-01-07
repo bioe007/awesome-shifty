@@ -1053,7 +1053,21 @@ function getlayout(name)
     end
 end
 
--- signals
+-- add signals before using them
+-- Note: these signals are emitted when tag properties
+-- are accessed through awful.tag.setproperty
+capi.tag.add_signal("property::initial")
+capi.tag.add_signal("property::used")
+capi.tag.add_signal("property::visited")
+capi.tag.add_signal("property::deserted")
+capi.tag.add_signal("property::matched")
+capi.tag.add_signal("property::selected")
+capi.tag.add_signal("property::position")
+capi.tag.add_signal("property::exclusive")
+capi.tag.add_signal("property::persist")
+capi.tag.add_signal("property::index")
+
+-- replace awful's default hook
 capi.client.connect_signal("manage", match)
 capi.client.connect_signal("unmanage", sweep)
 capi.client.disconnect_signal("manage", awful.tag.withcurrent)
@@ -1065,3 +1079,4 @@ for s = 1, capi.screen.count() do
 end
 
 return shifty
+
