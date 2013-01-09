@@ -13,6 +13,7 @@ local table = table
 local string = string
 local beautiful = require("beautiful")
 local awful = require("awful")
+local wibox = require("wibox")
 local pairs = pairs
 local io = io
 local tonumber = tonumber
@@ -621,11 +622,13 @@ function match(c, startup)
     -- Add titlebars to all clients when the float, remove when they are
     -- tiled.
     if shifty.config.float_bars then
+        shifty.create_titlebar(c)
+
         c:connect_signal("property::floating", function(c)
             if awful.client.floating.get(c) then
-                awful.titlebar.add(c, {modkey=modkey})
+                awful.titlebar(c)
             else
-                awful.titlebar.remove(c)
+                awful.titlebar(c, { size = 0 })
             end
             awful.placement.no_offscreen(c)
         end)
@@ -900,6 +903,46 @@ function shifty.init()
             end
         end
     end
+end
+
+-- Create a titlebar for the given client
+-- By default, make it invisible (size = 0)
+
+function shifty.create_titlebar(c)
+    -- Widgets that are aligned to the left
+    local left_layout = wibox.layout.fixed.horizontal()
+    left_layout:add(awful.titlebar.widget.iconwidget(c))
+
+    -- Widgets that are aligned to the right
+    local right_layout = wibox.layout.fixed.horizontal()
+    right_layout:add(awful.titlebar.widget.floatingbutton(c))
+    right_layout:add(awful.titlebar.widget.maximizedbutton(c))
+    right_layout:add(awful.titlebar.widget.stickybutton(c))
+    right_layout:add(awful.titlebar.widget.ontopbutton(c))
+    right_layout:add(awful.titlebar.widget.closebutton(c))
+
+    -- The title goes in the middle
+    local title = awful.titlebar.widget.titlewidget(c)
+    title:buttons(awful.util.table.join(
+            awful.button({ }, 1, function()
+                client.focus = c
+                c:raise()
+                awful.mouse.client.move(c)
+            end),
+            awful.button({ }, 3, function()
+                client.focus = c
+                c:raise()
+                awful.mouse.client.resize(c)
+            end)
+            ))
+
+    -- Now bring it all together
+    local layout = wibox.layout.align.horizontal()
+    layout:set_left(left_layout)
+    layout:set_right(right_layout)
+    layout:set_middle(title)
+
+    awful.titlebar(c, { size = 0 }):set_widget(layout)
 end
 
 --count : utility function returns the index of a table element
