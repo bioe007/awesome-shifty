@@ -1109,6 +1109,12 @@ capi.tag.add_signal("property::position")
 capi.tag.add_signal("property::exclusive")
 capi.tag.add_signal("property::persist")
 capi.tag.add_signal("property::index")
+capi.tag.add_signal("property::nopopup")
+capi.tag.add_signal("property::leave_kills")
+capi.tag.add_signal("property::max_clients")
+capi.tag.add_signal("property::icon_only")
+capi.tag.add_signal("property::sweep_delay")
+capi.tag.add_signal("property::overload_keys")
 
 -- replace awful's default hook
 capi.client.connect_signal("manage", match)
