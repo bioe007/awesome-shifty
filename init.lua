@@ -99,6 +99,9 @@ end
 function shifty.rename(tag, prefix, no_selectall)
     local theme = beautiful.get()
     local t = tag or awful.tag.selected(capi.mouse.screen)
+
+    if t == nil then return end
+
     local scr = awful.tag.getscreen(t)
     local bg = nil
     local fg = nil
