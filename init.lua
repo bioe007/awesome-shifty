@@ -14,6 +14,7 @@ local string = string
 local beautiful = require("beautiful")
 local awful = require("awful")
 local wibox = require("wibox")
+local naughty = require("naughty")
 local pairs = pairs
 local io = io
 local tonumber = tonumber
