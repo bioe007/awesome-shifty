@@ -462,7 +462,7 @@ end
 --            rc.lua
 --@param c : client to be matched
 function match(c, startup)
-    local nopopup, intrusive, nofocus, run, slave
+    local nopopup, intrusive, nofocus, run, slave, notagsteal
     local wfact, struts, geom, float
     local target_tag_names, target_tags = {}, {}
     local typ = c.type
@@ -608,6 +608,7 @@ function match(c, startup)
                         awful.client.property.set(c, kk, vv)
                     end
                 end
+                if a.notagsteal ~= nil then notagsteal = a.notagsteal end
             end
         end
     end
@@ -700,6 +701,21 @@ function match(c, startup)
     if wfact then awful.client.setwfact(wfact, c) end
     if geom then c:geometry(geom) end
     if struts then c:struts(struts) end
+
+    -- prevent the client from stealing focus if it is on another tag
+    if notagsteal then
+      nofocus = true
+      nopopup = true
+
+      for i, t1 in ipairs(target_tags) do
+        for j, t2 in ipairs(sel) do
+          if t1 == t2 then
+            nofocus = false
+            nopopup = false
+          end
+        end
+      end
+    end
 
     local showtags = {}
     local u = nil
