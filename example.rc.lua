@@ -433,8 +433,11 @@ for i = 1, (shifty.config.maxtags or 9) do
         -- move clients to other tags
         awful.key({modkey, "Shift"}, i, function()
             if client.focus then
+                -- remember the focused client because getpos() switch
+                -- to new tag (if it doesn't exist) and the client lost focus
+                local c = client.focus
                 t = shifty.getpos(i)
-                awful.client.movetotag(t)
+                awful.client.movetotag(t, c)
                 awful.tag.viewonly(t)
             end
         end))
