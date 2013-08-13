@@ -866,15 +866,9 @@ function getpos(pos, scr_arg)
         -- if scr_arg ~= nil and no tag exists on this screen, continue
     end
 
-    local screens = {}
-    for s = 1, capi.screen.count() do table.insert(screens, s) end
-
     -- search for preconf with 'pos' on current screen and create it
     for i, j in pairs(config.tags) do
-        local tag_scr = j.screen or screens
-        if type(tag_scr) ~= 'table' then tag_scr = {tag_scr} end
-
-        if j.position == pos and awful.util.table.hasitem(tag_scr, scr) then
+        if j.position == pos then
             return add({name = i,
                     position = pos,
                     noswitch = not switch})
