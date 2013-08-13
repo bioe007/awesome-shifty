@@ -868,7 +868,7 @@ function getpos(pos, scr_arg)
 
     -- search for preconf with 'pos' on current screen and create it
     for i, j in pairs(config.tags) do
-        if j.position == pos and j.screen then
+        if j.position == pos then
             return add({name = i,
                     position = pos,
                     noswitch = not switch})
