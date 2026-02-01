@@ -1,3 +1,9 @@
+# Archived
+Project is archived and left here only for posterity.
+
+Some email links removed to minimize spam. Author is not on github anymore.
+
+
 # shifty
 [Shifty](https://awesome.naquadah.org/wiki/Shifty) is an Awesome 3 extension
 that implements dynamic tagging.
@@ -55,17 +61,16 @@ Help is best found in this order:
    configuration questions and such.
 3. The [awesome users mailing list](mailto:awesome@naquadah.org)
 4. Messaging through github
-5. Directly e-mailing the [author](mailto:resixian@gmail.com)
+5. Directly e-mailing the ...
     - _Please_ use this as a last resort, not that I mind, but the other formats
     allow others to benefit as well.
 
 ## Development
-Report bugs at the [github
-repo](https://github.com/bioe007/awesome-shifty/issues). Please include at least
+Report bugs at the [githu](https://github.com/bioe007/awesome-shifty/issues). Please include at least
 the current versions of awesome and shifty, as well as distribution.
 
 ## Credits
-* [Perry Hargrave](mailto:resixian@gmail.com)
+* ...
     - Current maintainer and point of contact.
 * [koniu](mailto:gkusnierz@gmail.com)
     - Original author
